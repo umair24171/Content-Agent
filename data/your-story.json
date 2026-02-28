@@ -3,17 +3,17 @@
   "title": "Senior Flutter Developer | Full-Stack Mobile Engineer",
   "location": "Multan, Pakistan",
   "experience": "3+ years",
-  "apps_shipped": "15+ production apps on App Store & Google Play",
+  "apps_shipped": "20+ production apps on App Store & Google Play",
   "current_focus": [
-    "Muslifie - Muslim travel marketplace (live on both stores)",
-    "FarahGPT - AI Islamic habit app (2100+ active users)",
+    "Muslifie - Muslim travel marketplace (live on both stores) 200+ international companies registered already",
+    "FarahGPT - AI Islamic habit app (5100+ active users)",
     "Gold Trading Bots - 4 agents, backtested 1.44M candles, live on Render",
     "Building indie apps & freelancing"
   ],
   "apps": [
     {
       "name": "Muslifie",
-      "description": "Muslim travel marketplace with real-time chat, Stripe Connect payments, 70+ languages",
+      "description": "Muslim travel marketplace with real-time chat, Stripe Connect payments, 70+ languages, Tour bookings, commission split",
       "tech": "Flutter + Node.js + MongoDB + Firebase",
       "status": "Live on App Store & Play Store"
     },
@@ -21,7 +21,7 @@
       "name": "FarahGPT",
       "description": "AI-powered Islamic habit builder with 7 AI personalities, streak tracking, subscription",
       "tech": "Flutter + Firebase + RevenueCat",
-      "users": "2100+ active users",
+      "users": "5100+ active users",
       "status": "Live"
     },
     {
