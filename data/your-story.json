@@ -1,0 +1,72 @@
+{
+  "name": "Umair Bilal",
+  "title": "Senior Flutter Developer | Full-Stack Mobile Engineer",
+  "location": "Multan, Pakistan",
+  "experience": "3+ years",
+  "apps_shipped": "15+ production apps on App Store & Google Play",
+  "current_focus": [
+    "Muslifie - Muslim travel marketplace (live on both stores)",
+    "FarahGPT - AI Islamic habit app (2100+ active users)",
+    "Gold Trading Bots - 4 agents, backtested 1.44M candles, live on Render",
+    "Building indie apps & freelancing"
+  ],
+  "apps": [
+    {
+      "name": "Muslifie",
+      "description": "Muslim travel marketplace with real-time chat, Stripe Connect payments, 70+ languages",
+      "tech": "Flutter + Node.js + MongoDB + Firebase",
+      "status": "Live on App Store & Play Store"
+    },
+    {
+      "name": "FarahGPT",
+      "description": "AI-powered Islamic habit builder with 7 AI personalities, streak tracking, subscription",
+      "tech": "Flutter + Firebase + RevenueCat",
+      "users": "2100+ active users",
+      "status": "Live"
+    },
+    {
+      "name": "Gold Trading System",
+      "description": "4 automated trading agents for XAU/USD — Swing, NY Scalp, London Scalp, News Agent",
+      "tech": "Node.js + TwelveData API + Discord webhooks",
+      "backtest": "1.44M 1-min candles, 2021-2026",
+      "status": "Live on Render, targeting FTMO challenge"
+    },
+    {
+      "name": "MyAiPal",
+      "description": "AI wellness companion app",
+      "status": "Live"
+    },
+    {
+      "name": "Voisbe",
+      "description": "Voice social network app",
+      "status": "Live"
+    },
+    {
+      "name": "HikeSpot",
+      "description": "Ride-sharing app like InDrive with real-time Google Maps",
+      "status": "Built"
+    }
+  ],
+  "skills": [
+    "Flutter", "Dart", "Node.js", "MongoDB", "Firebase",
+    "React", "Next.js", "Stripe Connect", "RevenueCat",
+    "Google Cloud", "AI/ML Integration", "Gemini API",
+    "Real-time chat (Firestore)", "Algorithmic Trading",
+    "REST APIs", "WebSockets", "BLoC State Management",
+    "App Store & Play Store deployment", "70+ countries"
+  ],
+  "unique_angles": [
+    "Pakistani dev shipping apps to 70+ countries",
+    "Built gold trading bots trained on 7 years of real data",
+    "Indie developer with 2100+ real paying users",
+    "Full-stack: mobile + backend + AI + trading automation",
+    "Obsessed with building AI-powered products",
+    "From hostel in Multan to shipping apps worldwide"
+  ],
+  "posting_style": {
+    "tone": "Casual, technical but relatable, honest, builder mindset",
+    "avoid": "Corporate speak, overly formal, humble-bragging without substance",
+    "include": "Real numbers, real struggles, code snippets, lessons learned",
+    "cta_style": "Ask a question, invite discussion, or offer to share more"
+  }
+}

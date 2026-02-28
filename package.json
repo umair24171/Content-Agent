@@ -1,0 +1,25 @@
+{
+  "name": "content-agent",
+  "version": "1.0.0",
+  "description": "Umair's AI Content Pipeline - Auto posts to LinkedIn, Twitter, Instagram",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "research": "node agents/researcher.js",
+    "ideate": "node agents/ideator.js",
+    "script": "node agents/scripter.js",
+    "analyze": "node agents/analyst.js",
+    "pipeline": "node index.js pipeline",
+    "test": "node index.js test"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "googleapis": "^144.0.0",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0",
+    "twitter-api-v2": "^1.17.2"
+  }
+}
