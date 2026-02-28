@@ -43,15 +43,16 @@ LinkedIn FORMAT RULES:
 - Start with the HOOK (grab attention in first line)
 - Short lines (1-2 sentences max per line)
 - Add blank line between each point
-- Use minimal emojis (1-2 per section max)
-- 3-5 key insights/bullet points
-- Personal story or specific example from Umair's real experience
-- End with the CTA as a question to invite comments
-- Total length: 800-1200 characters
+- Use minimal emojis (1 max per post)
+- 3-5 key insights focused on KNOWLEDGE and VALUE
+- Only mention personal apps/projects if directly relevant to the technical topic (max once)
+- Do NOT mention city or location
+- End with a question to invite discussion
+- Total length: 700-1000 characters
 - NO hashtags in the body (add 3-5 at the very end)
-- Sound like a HUMAN, not corporate AI
+- Sound like a HUMAN developer sharing knowledge, not promoting themselves
 
-Writing style: Confident, direct, technical but accessible. Umair's voice is honest and builder-focused.
+Writing style: Confident, direct, technical but accessible. Focus on teaching, not self-promotion.
 
 Write the full LinkedIn post now:
 `;
@@ -64,40 +65,37 @@ Write the full LinkedIn post now:
 // Twitter thread writer
 // ─────────────────────────────────────────────────────────────────
 async function writeTwitterThread(ideas) {
-  const { twitter } = ideas;
   const prompt = `
-You are writing a Twitter/X thread for ${story.name}, a Flutter developer & indie hacker from Pakistan.
+You are writing a Twitter/X thread for ${story.name}, a ${story.title}.
 
 TOPIC: ${ideas.topic}
 HOOK: ${ideas.chosen_hook}
-THREAD CONCEPT: ${twitter.thread_concept}
-KEY POINTS: ${twitter.thread_points.join(', ')}
-CLOSING: ${twitter.closing_tweet}
 
-RULES:
-- Tweet 1: Hook + shocking statement (max 240 chars, NO hashtags)
-- Tweets 2-6: One insight per tweet, punchy, direct (max 265 chars each)
-- Tweet 7: Closing with CTA + 2-3 hashtags max
-- Total: 6-8 tweets
-- Sound like a real developer, not marketing copy
-- Reference real numbers when possible (15 apps, 2100 users, 1.44M candles, etc.)
+STRICT RULES (free API tier - 280 char hard limit per tweet):
+- EVERY tweet must be under 240 characters — count carefully!
+- Tweet 1: Hook only — short, punchy, NO hashtags, under 240 chars
+- Tweets 2-5: One sharp insight per tweet, under 240 chars each
+- Tweet 6: CTA + max 2 hashtags, under 240 chars total
+- Total: 5-6 tweets ONLY
+- Share KNOWLEDGE and VALUE — no self-promotion or location mentions
+- Sound like a developer talking to developers
 
-Return ONLY a JSON array of tweet strings:
-["tweet 1 text", "tweet 2 text", "tweet 3 text", ...]
+Return ONLY a valid JSON array of strings. No markdown, no explanation:
+["tweet1", "tweet2", "tweet3", "tweet4", "tweet5", "tweet6"]
 `;
 
   const response = await askGemini(prompt);
-  // Parse the JSON array from response
   const match = response.match(/\[[\s\S]*\]/);
+  let tweets = [];
   if (match) {
     try {
-      return JSON.parse(match[0]);
+      tweets = JSON.parse(match[0]);
     } catch (e) {
-      // fallback: split by newlines
+      tweets = response.split('\n').filter((l) => l.trim().length > 10).slice(0, 6);
     }
   }
-  // Fallback: split response into tweets
-  return response.split('\n').filter((l) => l.trim().length > 10).slice(0, 7);
+  // Hard enforce 275 char limit per tweet (buffer for safety)
+  return tweets.map(t => t.length > 275 ? t.substring(0, 272) + '...' : t);
 }
 
 // ─────────────────────────────────────────────────────────────────
