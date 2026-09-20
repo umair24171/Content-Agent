@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export async function askGemini(prompt, systemInstruction = null) {
   try {
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash', // Free tier model
+      model: 'gemini-3.6-flash', // gemini-2.5-flash was retired for new users — see error in previous run
       systemInstruction: systemInstruction || 'You are a helpful AI assistant for content creation.',
     });
 
@@ -23,7 +23,7 @@ export async function askGemini(prompt, systemInstruction = null) {
 export async function askGeminiJSON(prompt, systemInstruction = null) {
   try {
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       systemInstruction: systemInstruction || 'You are a helpful AI assistant. Always respond with valid JSON only, no markdown, no explanation.',
       generationConfig: {
         responseMimeType: 'application/json',
