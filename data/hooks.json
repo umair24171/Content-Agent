@@ -50,16 +50,10 @@
     "Thread: Everything I know about {topic} after {X} years:",
     "What {big number} lines of code taught me about {topic}:",
     "Stop {common mistake}. Here's the right way:",
-    "I'm a developer in Pakistan shipping apps globally. Here's what's actually hard:",
-    "Built this at 2am. Ships to 70+ countries. Zero VC funding:",
-    "Gold trading bot update: {X} signals, {Y} win rate, honest numbers:",
-    "Muslim app builders: we're building the next wave. Here's proof:",
     "From 0 to {X} users without spending a dollar on ads:",
-    "How I deploy to App Store AND Play Store the same day:",
     "Real Stripe Connect implementation — the docs don't tell you this:",
-    "My Node.js trading bot catches signals while I sleep:",
     "Firebase vs MongoDB: I've used both in production. Real comparison:",
-    "RevenueCat implementation lessons from 2100+ paying users:"
+    "RevenueCat implementation lessons that actually matter:"
   ],
   "platform_formats": {
     "linkedin": {
@@ -79,7 +73,7 @@
     "instagram": {
       "caption_length": "150-300 words",
       "hashtag_count": 20,
-      "hashtags": ["#Flutter", "#FlutterDev", "#MobileDev", "#AppDevelopment", "#NodeJS", "#AI", "#MachineLearning", "#TechTwitter", "#Developer", "#Pakistan", "#IndieHacker", "#BuildInPublic", "#SideProject", "#Startup", "#AIAgents", "#Automation", "#Trading", "#AlgoTrading", "#IslamicApp", "#Muslim"]
+      "hashtags": ["#Flutter", "#FlutterDev", "#MobileDev", "#AppDevelopment", "#NodeJS", "#AI", "#MachineLearning", "#TechTwitter", "#Developer", "#Pakistan", "#IndieHacker", "#BuildInPublic", "#SideProject", "#Startup", "#AIAgents", "#Automation", "#IslamicApp", "#Muslim"]
     }
   }
 }

@@ -59,13 +59,11 @@ export async function getTopPosts(subreddit, limit = 5, timeframe = 'day') {
   }
 }
 
-// All subreddits relevant to Umair's topics
+// Subreddits sourced for trending dev/tech/workplace content
 export const TARGET_SUBREDDITS = [
   'FlutterDev',         // Flutter
   'androiddev',         // Mobile dev
   'iOSProgramming',     // iOS
-  'algotrading',        // Trading bots
-  'Forex',              // Forex/Gold trading
   'freelance',          // Freelancing
   'devops',             // DevOps
   'artificial',         // AI general
@@ -77,4 +75,6 @@ export const TARGET_SUBREDDITS = [
   'startups',           // Startup/indie hacker
   'SideProject',        // Side projects
   'entrepreneur',       // Entrepreneurship
+  'technology',         // Broad tech/business news — CEOs, company moves, policy
+  'ExperiencedDevs',    // Real workplace/career stuff — HR, managers, company culture
 ];

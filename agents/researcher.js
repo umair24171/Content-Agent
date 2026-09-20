@@ -1,7 +1,7 @@
 /**
  * RESEARCHER AGENT
  * Scrapes Reddit, RSS feeds, GitHub, NewsAPI
- * Scores top 10 trending topics relevant to Umair's niche
+ * Scores today's top trending topics for a software/AI developer audience
  * Saves to Google Sheets "topics" tab
  */
 
@@ -10,26 +10,16 @@ import { getFeedItems, getNewsArticles, getGitHubTrending } from '../utils/news.
 import { askGeminiJSON } from '../utils/gemini.js';
 import { appendRow } from '../utils/sheets.js';
 import { notifyDiscord } from '../utils/discord.js';
-import { readFileSync } from 'fs';
 
-const story = JSON.parse(readFileSync('./data/your-story.json', 'utf-8'));
-
-const UMAIR_TOPICS = [
-  'Flutter mobile development',
-  'AI agents and automation',
-  'Node.js backend development',
-  'Algorithmic trading and trading bots',
-  'Machine learning and LLMs',
-  'RAG (Retrieval Augmented Generation)',
-  'Freelancing and remote work',
-  'Islamic tech and Muslim apps',
-  'Firebase and app development',
-  'Indie hacking and side projects',
-  'AI tools for developers',
-  'Mobile app monetization',
-  'React and Next.js',
-  'Startup and entrepreneurship',
-  'Pakistani tech scene',
+// Used only if Gemini scoring fails outright — never shapes what gets
+// picked when scoring succeeds. Deliberately generic, not tied to any
+// one person's niche.
+const FALLBACK_TOPICS = [
+  { topic: 'AI agents moving from demo to production', content_type: 'tip' },
+  { topic: 'New open source developer tools gaining traction', content_type: 'tip' },
+  { topic: 'Mobile app development trends', content_type: 'tip' },
+  { topic: 'Software engineering practices developers argue about', content_type: 'opinion' },
+  { topic: 'Classic HR-speak and meeting culture', content_type: 'humor' },
 ];
 
 async function runResearcher(runLabel = 'morning') {
@@ -61,7 +51,7 @@ async function runResearcher(runLabel = 'morning') {
 
   // 4. NewsAPI for specific tech topics
   console.log('\n📋 Fetching tech news...');
-  const newsQueries = ['AI agents automation', 'Flutter mobile app', 'algorithmic trading'];
+  const newsQueries = ['AI agents automation', 'Flutter mobile app', 'tech company CEO layoffs'];
   for (const q of newsQueries) {
     const articles = await getNewsArticles(q, 3);
     allContent.push(...articles.map((a) => ({ ...a, type: 'news', query: q })));
@@ -77,30 +67,32 @@ async function runResearcher(runLabel = 'morning') {
     .join('\n');
 
   const scoringPrompt = `
-You are a content strategist for ${story.name}, a ${story.title} from Pakistan.
-
-His target audience: Developers, tech enthusiasts, Flutter devs, AI builders, freelancers, Muslim tech community.
-
-His topics of interest:
-${UMAIR_TOPICS.join('\n')}
+You are a content strategist scanning today's developer and tech news for post ideas.
 
 Here is today's trending content from Reddit, RSS, GitHub, and News:
 ${contentSummary}
 
-Based on this content, identify the TOP 5 trending topics that:
-1. Are currently HOT and getting engagement
-2. Relate to Umair's expertise or audience
-3. He can share a unique perspective on (as a Pakistani dev, indie hacker, or Flutter/trading expert)
+From this content — not from any fixed topic list — identify the TOP 5 topics that:
+1. Are currently HOT and getting real engagement right now — not evergreen advice, actual news/discussion happening today
+2. Are relevant to a software development, mobile/web dev, AI/ML, or broader tech-industry audience
+3. Have a genuine hook — something specific, surprising, or debatable that would make a developer stop scrolling. Not a generic "here's what I learned" angle.
+
+Base every topic on something actually present in the content above. Do NOT propose an angle that centers on the author's personal apps, story, or background — the post should be interesting because of the topic itself, not because of who's writing it.
+
+Among the 5, include AT LEAST ONE genuinely funny/relatable topic (content_type: "humor") about workplace life, HR, management, CEOs, or company culture. Two ways to do that:
+- If the content above has a real, specific story (a real company, a real CEO, a real layoff or policy), base the angle on what's actually reported — don't invent quotes or claims, and punch at the absurdity of the situation, not at any individual personally.
+- If nothing specific stands out today, a universal relatable workplace scenario is fine (HR-speak, meeting culture, layoff-announcement clichés) — doesn't need to reference anyone real.
+Score it honestly like the others — don't force it to win if it's genuinely weaker than the rest of today's content.
 
 Return JSON array with exactly 5 objects:
 [
   {
     "topic": "exact topic name",
-    "angle": "specific angle Umair can take based on his experience",
+    "angle": "the specific hook or angle — what makes this worth a stop-scroll, based on the actual trending content above",
     "why_trending": "brief reason it's trending today",
     "source": "reddit|rss|github|news",
     "score": 1-100,
-    "content_type": "tutorial|story|opinion|breakdown|thread|tip"
+    "content_type": "tutorial|story|opinion|breakdown|thread|tip|humor"
   }
 ]
 `;
@@ -111,14 +103,14 @@ Return JSON array with exactly 5 objects:
     console.log(`  ✓ Gemini scored ${topics.length} topics`);
   } catch (e) {
     console.error('  ❌ Gemini scoring failed:', e.message);
-    // Fallback topics
-    topics = UMAIR_TOPICS.slice(0, 5).map((t, i) => ({
-      topic: t,
-      angle: 'From personal experience building production apps',
-      why_trending: 'Always relevant in dev community',
+    // Fallback topics — generic, not personal, used only when Gemini itself fails
+    topics = FALLBACK_TOPICS.map((t, i) => ({
+      topic: t.topic,
+      angle: 'General trend in this space worth breaking down',
+      why_trending: 'Fallback — live scoring unavailable this run',
       source: 'fallback',
       score: 80 - i * 5,
-      content_type: 'tip',
+      content_type: t.content_type,
     }));
   }
 

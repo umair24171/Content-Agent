@@ -10,7 +10,6 @@ import { appendRow, getLastRows } from '../utils/sheets.js';
 import { notifyDiscord } from '../utils/discord.js';
 import { readFileSync } from 'fs';
 
-const story = JSON.parse(readFileSync('./data/your-story.json', 'utf-8'));
 const hooksData = JSON.parse(readFileSync('./data/hooks.json', 'utf-8'));
 
 async function runIdeator(topics = null, runLabel = 'morning') {
@@ -36,7 +35,7 @@ async function runIdeator(topics = null, runLabel = 'morning') {
   if (topics.length === 0) {
     console.log('⚠️ No topics found, using fallback');
     topics = [
-      { topic: 'AI Agents in 2025', angle: 'Built 4 trading agents myself', score: 85, content_type: 'story' },
+      { topic: 'AI Agents in 2026', angle: 'What actually breaks when agents go from demo to production', score: 85, content_type: 'story' },
     ];
   }
 
@@ -48,35 +47,34 @@ async function runIdeator(topics = null, runLabel = 'morning') {
   const availableHooks = hooksData.hooks;
   const randomHooks = availableHooks.sort(() => 0.5 - Math.random()).slice(0, 10);
 
-  const ideationPrompt = `
-You are a content strategist for ${story.name}.
+  const isHumor = bestTopic.content_type === 'humor';
 
-ABOUT UMAIR:
-- ${story.title}
-- ${story.experience} experience, shipped ${story.apps_shipped}
-- Key apps: ${story.apps.map((a) => `${a.name} (${a.description})`).join(', ')}
-- Unique angles: ${story.unique_angles.join(', ')}
-- Location: ${story.location}
+  const ideationPrompt = `
+You are a content strategist working with a developer's account. Background context (for your own grounding only — do not build the post around this): Flutter and Node.js developer, works with AI integrations, based in Pakistan.
 
 TODAY'S TOPIC: "${bestTopic.topic}"
 WHY TRENDING: ${bestTopic.why_trending || 'Hot in tech community right now'}
-UMAIR'S ANGLE: ${bestTopic.angle || 'Personal experience'}
+HOOK/ANGLE: ${bestTopic.angle || 'Interesting technical angle'}
 CONTENT TYPE: ${bestTopic.content_type || 'story'}
 
 AVAILABLE HOOKS (pick the best one):
 ${randomHooks.slice(0, 8).join('\n')}
 
-Generate content ideas for all 3 platforms:
+${isHumor
+  ? `This is a HUMOR topic — corporate/workplace comedy (HR-speak, CEO buzzwords, layoffs, meeting culture, management absurdity). Build the angle and key_points as comedic beats leading to a punchline, not technical teaching points. If HOOK/ANGLE references a real company, CEO, or event, base everything on what's actually in HOOK/ANGLE — never invent a quote or claim. Punch at the situation, not at any individual personally.`
+  : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience.`}
+Only fill in "personal_connection" if there's a genuinely specific, non-generic tie-in to hands-on experience that makes the post stronger; if not, leave it as an empty string. Most ideas should have it empty.
 
 Return JSON:
 {
   "topic": "${bestTopic.topic}",
+  "content_type": "${bestTopic.content_type || 'story'}",
   "chosen_hook": "exact hook text chosen from the list above",
   "hook_reason": "why this hook fits",
   "linkedin": {
-    "angle": "specific angle for LinkedIn professional audience",
+    "angle": "specific angle for LinkedIn professional audience, built on the topic itself",
     "key_points": ["point 1", "point 2", "point 3", "point 4"],
-    "personal_connection": "how Umair personally connects to this (reference his real apps/projects)",
+    "personal_connection": "leave empty unless there's a genuinely specific reason to include it",
     "cta": "call to action for the post"
   },
   "twitter": {
@@ -101,12 +99,13 @@ Return JSON:
     console.error('  ❌ Gemini ideation failed:', e.message);
     ideas = {
       topic: bestTopic.topic,
+      content_type: bestTopic.content_type || 'story',
       chosen_hook: availableHooks[0],
       hook_reason: 'Fallback',
       linkedin: {
         angle: bestTopic.angle || bestTopic.topic,
         key_points: ['Key insight 1', 'Key insight 2', 'Key insight 3'],
-        personal_connection: 'From my experience building Flutter apps',
+        personal_connection: '',
         cta: 'What has been your experience? Drop a comment.',
       },
       twitter: {
@@ -136,6 +135,7 @@ Return JSON:
     '', // linkedin_post_id (filled later)
     '', // twitter_id
     '', // instagram_saved
+    ideas.content_type || 'story',
   ]);
 
   await notifyDiscord(
