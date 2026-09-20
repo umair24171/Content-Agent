@@ -73,12 +73,14 @@ async function humanizeLinkedInPost(draft) {
   const prompt = `
 Rewrite this LinkedIn post so it reads like a real person wrote it, not an AI. Keep every fact, number, and claim exactly as-is — do not invent or remove information, and do not change the overall length by more than a few characters.
 
-BANNED WORDS/PHRASES (replace with plain language): leverage, seamless, robust, dive into, delve, unlock, unleash, elevate, revolutionize, game-changer, cutting-edge, state-of-the-art, harness the power of, paradigm shift, in today's fast-paced world, it's important to note that, at the end of the day.
+BANNED WORDS/PHRASES (replace with plain language): leverage, seamless, robust, dive into, delve, unlock, unleash, elevate, revolutionize, game-changer, cutting-edge, state-of-the-art, harness the power of, paradigm shift, in today's fast-paced world, it's important to note that, at the end of the day, undeniable, immense, significant, gaining traction, gaining significant traction, growing rapidly, groundbreaking, transformative, explosive growth, skyrocketing, genuinely thrilled, captivating.
+
+UNSUPPORTED CLAIMS: any sentence that just asserts something is big, important, rising, or exciting without a specific number, named example, or concrete detail attached is a red flag. Either cut it, or replace it with the one specific fact that was supposed to prove it. "AI trading is exploding in popularity" is not allowed. "AI trading repos on GitHub have tripled this year" is, if that number is actually in the draft — don't invent one.
 
 OTHER RULES:
 - No em dashes (—) and no double hyphens (--) — use a period or comma instead
 - No throat-clearing openers ("I wanted to share...", "Let's talk about...")
-- No vague hype ("incredible", "mind-blowing", "huge") unless it's backed by the specific number or fact already in the draft
+- No vague hype ("incredible", "mind-blowing", "huge", "exciting") unless it's backed by the specific number or fact already in the draft
 - Keep the line breaks and paragraph structure as-is
 - Keep the hashtags at the end exactly as-is
 
@@ -108,6 +110,34 @@ function extractLinkForComment(text) {
     .trim();
 
   return { body, link };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Force the post back into the 900-1300 range. The prompt asks for
+// this but nothing enforces it — Gemini routinely overshoots, so
+// this actually corrects it instead of hoping the instruction held.
+// ─────────────────────────────────────────────────────────────────
+async function enforceLinkedInLength(text, minLen = 900, maxLen = 1300, maxAttempts = 2) {
+  let current = text;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (current.length >= minLen && current.length <= maxLen) {
+      return current;
+    }
+
+    const overLimit = current.length > maxLen;
+    const prompt = overLimit
+      ? `This LinkedIn post is ${current.length} characters, over the ${maxLen} limit. Cut it down to ${minLen}-${maxLen} characters. Remove the weakest sentence(s) or tighten wordy lines — don't just chop the end off mid-thought. Keep every fact and number that's left in, keep the line breaks, keep the hashtags at the end exactly as-is. Don't add anything new.\n\nPOST:\n${current}\n\nReturn only the trimmed post, nothing else:`
+      : `This LinkedIn post is only ${current.length} characters, under the ${minLen} minimum. Expand it to ${minLen}-${maxLen} characters by adding one more concrete point that fits the topic — a real detail, not filler or repetition of what's already said. Keep the line breaks, keep the hashtags at the end exactly as-is.\n\nPOST:\n${current}\n\nReturn only the expanded post, nothing else:`;
+
+    current = (await askGemini(prompt)).trim();
+  }
+
+  if (current.length < minLen || current.length > maxLen) {
+    console.warn(`  ⚠️ LinkedIn post still ${current.length} chars after ${maxAttempts} correction attempts, posting as-is`);
+  }
+
+  return current;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -209,8 +239,8 @@ async function runScripter(ideas = null, runLabel = 'morning') {
   console.log('\n🔵 Writing LinkedIn post...');
   let linkedinPost = await writeLinkedInPost(ideas);
   linkedinPost = await humanizeLinkedInPost(linkedinPost);
-  const { body: linkedinBody, link: linkedinLink } = extractLinkForComment(linkedinPost);
-  linkedinPost = linkedinBody;
+  const { body: rawBody, link: linkedinLink } = extractLinkForComment(linkedinPost);
+  linkedinPost = await enforceLinkedInLength(rawBody);
   console.log(`  ✓ LinkedIn: ${linkedinPost.length} chars${linkedinLink ? ' + link queued for first comment' : ''}`);
 
   console.log('\n🐦 Writing Twitter thread...');
