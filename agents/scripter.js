@@ -24,7 +24,7 @@ async function writeLinkedInPost(ideas) {
   const prompt = `
 You are writing a LinkedIn post for ${story.name}, ${story.title} from Pakistan.
 
-HOOK: ${ideas.chosen_hook}
+HOOK MATERIAL: ${ideas.chosen_hook}
 TOPIC: ${ideas.topic}
 ANGLE: ${linkedin.angle}
 KEY POINTS: ${linkedin.key_points.join(', ')}
@@ -39,17 +39,22 @@ ABOUT UMAIR (use these real details naturally):
 - Senior Flutter developer, 3+ years, based in Multan, Pakistan
 - Works with Flutter, Node.js, MongoDB, Firebase, AI integrations
 
+OPENING LINE (critical):
+- HOOK MATERIAL above may still contain {placeholders} like {X} or {topic} — never publish those literally. Replace every placeholder with a real, specific detail pulled from TOPIC, KEY POINTS, or ABOUT UMAIR (a real number, a named tool, a dated timeframe).
+- LinkedIn cuts the post to "see more" after roughly the first 210 characters, so the opening line has to be a complete, specific claim on its own — not a scaffold or a throat-clearer like "Let's talk about..." or "I wanted to share...".
+- It should read as one of: a contrarian/unpopular claim, a specific number or result stated plainly, a before/after contrast, a direct warning or "stop doing X," a confession of a mistake, or a flat statement of what was built and in how long. Pick whichever fits HOOK MATERIAL best.
+
 LinkedIn FORMAT RULES:
-- Start with the HOOK (grab attention in first line)
 - Short lines (1-2 sentences max per line)
-- Add blank line between each point
+- Add blank line between each point — real whitespace, not a wall of text
 - Use minimal emojis (1 max per post)
 - 3-5 key insights focused on KNOWLEDGE and VALUE
 - Only mention personal apps/projects if directly relevant to the technical topic (max once)
 - Do NOT mention city or location
 - End with a question to invite discussion
-- Total length: 700-1000 characters
+- Total length: 900-1300 characters
 - NO hashtags in the body (add 3-5 at the very end)
+- If TOPIC references a specific outside article, repo, or source, don't paste its raw URL in the body — just note the link is in the comments. If there's no outside source, ignore this rule.
 - Sound like a HUMAN developer sharing knowledge, not promoting themselves
 
 Writing style: Confident, direct, technical but accessible. Focus on teaching, not self-promotion.
@@ -59,6 +64,50 @@ Write the full LinkedIn post now:
 
   const post = await askGemini(prompt);
   return post.trim();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LinkedIn humanizer — strips AI-sounding phrasing from the draft
+// ─────────────────────────────────────────────────────────────────
+async function humanizeLinkedInPost(draft) {
+  const prompt = `
+Rewrite this LinkedIn post so it reads like a real person wrote it, not an AI. Keep every fact, number, and claim exactly as-is — do not invent or remove information, and do not change the overall length by more than a few characters.
+
+BANNED WORDS/PHRASES (replace with plain language): leverage, seamless, robust, dive into, delve, unlock, unleash, elevate, revolutionize, game-changer, cutting-edge, state-of-the-art, harness the power of, paradigm shift, in today's fast-paced world, it's important to note that, at the end of the day.
+
+OTHER RULES:
+- No em dashes (—) and no double hyphens (--) — use a period or comma instead
+- No throat-clearing openers ("I wanted to share...", "Let's talk about...")
+- No vague hype ("incredible", "mind-blowing", "huge") unless it's backed by the specific number or fact already in the draft
+- Keep the line breaks and paragraph structure as-is
+- Keep the hashtags at the end exactly as-is
+
+DRAFT:
+${draft}
+
+Return only the rewritten post, nothing else:
+`;
+
+  const humanized = await askGemini(prompt);
+  return humanized.trim();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Pull any raw URL out of the final post so it can go in the first
+// comment instead (LinkedIn suppresses reach on posts with a link)
+// ─────────────────────────────────────────────────────────────────
+function extractLinkForComment(text) {
+  const urlMatch = text.match(/https?:\/\/[^\s)]+/);
+  if (!urlMatch) return { body: text, link: null };
+
+  const link = urlMatch[0];
+  const body = text
+    .replace(link, '')
+    .replace(/[ \t]+\n/g, '\n')  // trailing spaces left behind
+    .replace(/\n{3,}/g, '\n\n')  // collapse extra blank lines
+    .trim();
+
+  return { body, link };
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -158,8 +207,11 @@ async function runScripter(ideas = null, runLabel = 'morning') {
 
   // Write all 3 platform posts
   console.log('\n🔵 Writing LinkedIn post...');
-  const linkedinPost = await writeLinkedInPost(ideas);
-  console.log(`  ✓ LinkedIn: ${linkedinPost.length} chars`);
+  let linkedinPost = await writeLinkedInPost(ideas);
+  linkedinPost = await humanizeLinkedInPost(linkedinPost);
+  const { body: linkedinBody, link: linkedinLink } = extractLinkForComment(linkedinPost);
+  linkedinPost = linkedinBody;
+  console.log(`  ✓ LinkedIn: ${linkedinPost.length} chars${linkedinLink ? ' + link queued for first comment' : ''}`);
 
   console.log('\n🐦 Writing Twitter thread...');
   const twitterThread = await writeTwitterThread(ideas);
@@ -177,7 +229,7 @@ async function runScripter(ideas = null, runLabel = 'morning') {
 
   // LinkedIn
   try {
-    linkedinId = await postToLinkedIn(linkedinPost);
+    linkedinId = await postToLinkedIn(linkedinPost, linkedinLink);
   } catch (e) {
     console.error('  ❌ LinkedIn failed:', e.message);
   }
