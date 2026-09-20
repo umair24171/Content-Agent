@@ -65,6 +65,8 @@ ${isHumor
   : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience.`}
 Only fill in "personal_connection" if there's a genuinely specific, non-generic tie-in to hands-on experience that makes the post stronger; if not, leave it as an empty string. Most ideas should have it empty.
 
+GROUNDING (important): TODAY'S TOPIC / WHY TRENDING / HOOK-ANGLE above is everything that's actually been verified from real scraped content. When you write key_points, thread_points, and key_message, you're allowed to explain and add context around that real material, but do NOT invent additional specific-sounding details that weren't given to you — no new named sub-tools, sub-projects, specific stats, or specific claims beyond what's in TOPIC/WHY TRENDING/HOOK-ANGLE. If you need an example to illustrate a point, describe it generically ("a lightweight variant," "a compaction technique") instead of inventing a plausible-sounding proper name for it. If TOPIC is a specific named framework/tool that a general audience likely won't recognize, note that in the angle so the writer knows to define it in plain words rather than assuming familiarity.
+
 Return JSON:
 {
   "topic": "${bestTopic.topic}",

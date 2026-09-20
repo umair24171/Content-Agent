@@ -75,6 +75,10 @@ LinkedIn FORMAT RULES:
 - If TOPIC references a specific outside article, repo, or source, don't paste its raw URL in the body — just note the link is in the comments. If there's no outside source, ignore this rule.
 - Sound like a HUMAN developer sharing knowledge, not promoting themselves
 
+UNFAMILIAR TERMS: if TOPIC, ANGLE, or KEY POINTS center on a specific named framework, tool, or project that a general LinkedIn audience likely hasn't heard of (brand new, niche, insider-only), the post must define it in one plain clause the first time it's used — what it actually does, in normal words — before using the name like it's common knowledge. Don't assume familiarity just because it's trending in a GitHub/Reddit niche.
+
+DON'T INVENT SPECIFICS: only use tool names, sub-project names, or specific technical claims that are actually present in TOPIC, ANGLE, or KEY POINTS above. If you want to illustrate a point with an example, use a generic description ("a compaction tool," "a lightweight variant") instead of making up a specific-sounding name that wasn't given to you. Inventing a plausible-sounding name is worse than being generic — it reads as researched when it isn't.
+
 Writing style: Confident, direct, technical but accessible. Focus on teaching, not self-promotion.
 
 Write the full LinkedIn post now:
@@ -210,6 +214,8 @@ STRICT RULES (free API tier - 280 char hard limit per tweet):
 - Total: 5-6 tweets ONLY
 - Share KNOWLEDGE and VALUE — no self-promotion or location mentions
 - Sound like a developer talking to developers
+- If TOPIC centers on a specific named framework/tool most people won't recognize, tweet 1 or 2 must define it in plain words before using the name like it's common knowledge
+- Only use tool/project names actually given to you in TOPIC/HOOK — don't invent a specific-sounding name to illustrate a point, use a generic description instead
 
 Return ONLY a valid JSON array of strings. No markdown, no explanation:
 ["tweet1", "tweet2", "tweet3", "tweet4", "tweet5", "tweet6"]
@@ -266,7 +272,8 @@ RULES:
 - Start with emoji + hook (first line is CRUCIAL - it's the preview)
 - 150-250 words
 - Conversational, focused on the topic itself — not a personal resume or story about apps built
-- Concrete detail or number if one is genuinely in TOPIC/KEY MESSAGE — don't invent one
+- Concrete detail or number if one is genuinely in TOPIC/KEY MESSAGE — don't invent one, and don't invent a specific tool/project name either — use a generic description if you need an example
+- If TOPIC centers on a specific named framework/tool most people won't recognize, explain what it is in plain words before using the name like it's common knowledge
 - End with question or invitation
 - Add line break then 20 relevant hashtags:
 ${platform_formats.instagram.hashtags.join(' ')} #FlutterDeveloper #AppDev #BuildInPublic #IndieHacker #AITools #Automation
