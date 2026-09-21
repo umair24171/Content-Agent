@@ -76,6 +76,7 @@ From this content — not from any fixed topic list — identify the TOP 5 topic
 1. Are currently HOT and getting real engagement right now — not evergreen advice, actual news/discussion happening today
 2. Are relevant to a software development, mobile/web dev, AI/ML, or broader tech-industry audience
 3. Have a genuine hook — something specific, surprising, or debatable that would make a developer stop scrolling. Not a generic "here's what I learned" angle.
+4. Can be made to matter to a developer who ISN'T already following that specific niche. Some of today's hottest content will be deep inside one small community (a brand-new framework, an obscure GitHub project) — that's fine as raw material, but the angle you write must translate it into the broader, relatable question or tension it represents (why should anyone outside this niche care, what debate or tradeoff does this actually represent), not just report the insider jargon as if it's common knowledge. If a topic can't be translated that way even with effort, don't pick it — pick the next one that can.
 
 Base every topic on something actually present in the content above. Do NOT propose an angle that centers on the author's personal apps, story, or background — the post should be interesting because of the topic itself, not because of who's writing it.
 
@@ -88,7 +89,7 @@ Return JSON array with exactly 5 objects:
 [
   {
     "topic": "exact topic name",
-    "angle": "the specific hook or angle — what makes this worth a stop-scroll, based on the actual trending content above",
+    "angle": "the specific hook or angle, framed around why a developer OUTSIDE this specific niche would care — the relatable tension or tradeoff, not just the insider jargon",
     "why_trending": "brief reason it's trending today",
     "source": "reddit|rss|github|news",
     "score": 1-100,

@@ -62,10 +62,10 @@ ${randomHooks.slice(0, 8).join('\n')}
 
 ${isHumor
   ? `This is a HUMOR topic — corporate/workplace comedy (HR-speak, CEO buzzwords, layoffs, meeting culture, management absurdity). Build the angle and key_points as comedic beats leading to a punchline, not technical teaching points. If HOOK/ANGLE references a real company, CEO, or event, base everything on what's actually in HOOK/ANGLE — never invent a quote or claim. Punch at the situation, not at any individual personally.`
-  : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience.`}
+  : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience. But it still needs a real point of view: pick an honest reaction to TOPIC (impressed, skeptical, "this solves a real problem," "this is overhyped") and build key_points around that stance, not a neutral list of facts. If TOPIC is niche/insider, key_points should translate it into why a developer outside that niche would actually care — the underlying tradeoff or debate, not just the jargon.`}
 Only fill in "personal_connection" if there's a genuinely specific, non-generic tie-in to hands-on experience that makes the post stronger; if not, leave it as an empty string. Most ideas should have it empty.
 
-GROUNDING (important): TODAY'S TOPIC / WHY TRENDING / HOOK-ANGLE above is everything that's actually been verified from real scraped content. When you write key_points, thread_points, and key_message, you're allowed to explain and add context around that real material, but do NOT invent additional specific-sounding details that weren't given to you — no new named sub-tools, sub-projects, specific stats, or specific claims beyond what's in TOPIC/WHY TRENDING/HOOK-ANGLE. If you need an example to illustrate a point, describe it generically ("a lightweight variant," "a compaction technique") instead of inventing a plausible-sounding proper name for it. If TOPIC is a specific named framework/tool that a general audience likely won't recognize, note that in the angle so the writer knows to define it in plain words rather than assuming familiarity.
+GROUNDING (important): TODAY'S TOPIC / WHY TRENDING / HOOK-ANGLE above is everything that's actually been verified from real scraped content. When you write key_points, thread_points, and key_message, you're allowed to explain and add context around that real material, but do NOT invent additional specific-sounding details that weren't given to you — no new named sub-tools, sub-projects, specific stats, or specific claims beyond what's in TOPIC/WHY TRENDING/HOOK-ANGLE. This includes inventing a second name to pair with a real one — if TOPIC only gives you one specific named tool, don't write it as "X and Y" with an invented Y just to sound like you're citing two established things. If you need an example to illustrate a point, describe it generically ("a lightweight variant," "a compaction technique") instead of inventing a plausible-sounding proper name for it. If TOPIC is a specific named framework/tool that a general audience likely won't recognize, note that in the angle so the writer knows to define it in plain words rather than assuming familiarity.
 
 Return JSON:
 {
@@ -74,7 +74,7 @@ Return JSON:
   "chosen_hook": "exact hook text chosen from the list above",
   "hook_reason": "why this hook fits",
   "linkedin": {
-    "angle": "specific angle for LinkedIn professional audience, built on the topic itself",
+    "angle": "specific angle for LinkedIn professional audience, built on the topic itself, with a clear point of view — not a neutral report",
     "key_points": ["point 1", "point 2", "point 3", "point 4"],
     "personal_connection": "leave empty unless there's a genuinely specific reason to include it",
     "cta": "call to action for the post"
