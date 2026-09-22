@@ -98,3 +98,23 @@ export async function getGitHubTrending() {
     return [];
   }
 }
+
+// Fetches a repo's actual README text — real, specific material to write
+// from instead of a 150-char description. Called lazily, only for the one
+// topic that actually wins a run, not for all 10 trending repos every time.
+export async function getGitHubReadme(repoFullName) {
+  try {
+    const response = await axios.get(`https://api.github.com/repos/${repoFullName}/readme`, {
+      headers: {
+        'User-Agent': 'ContentAgent/1.0',
+        Accept: 'application/vnd.github.raw+json',
+      },
+    });
+    // Keep only the opening chunk — that's normally where "what this does
+    // and why" lives, before installation steps and deep API reference
+    return typeof response.data === 'string' ? response.data.substring(0, 3000) : '';
+  } catch (error) {
+    console.warn(`  ⚠️ Could not fetch README for ${repoFullName}:`, error.message);
+    return '';
+  }
+}

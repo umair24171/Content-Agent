@@ -8,6 +8,7 @@
 import { askGemini, askGeminiJSON } from '../utils/gemini.js';
 import { appendRow, getLastRows } from '../utils/sheets.js';
 import { notifyDiscord } from '../utils/discord.js';
+import { getGitHubReadme } from '../utils/news.js';
 import { readFileSync } from 'fs';
 
 const hooksData = JSON.parse(readFileSync('./data/hooks.json', 'utf-8'));
@@ -29,6 +30,7 @@ async function runIdeator(topics = null, runLabel = 'morning') {
         angle: r[5],
         why_trending: r[6],
         content_type: r[7],
+        source_url: r[9] || '',
       }));
   }
 
@@ -43,6 +45,24 @@ async function runIdeator(topics = null, runLabel = 'morning') {
   const bestTopic = topics.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
   console.log(`\n🎯 Selected topic: "${bestTopic.topic}" (score: ${bestTopic.score})`);
 
+  // If the winning topic came from a specific GitHub repo, fetch its real
+  // README — this is the one topic that actually won, so it's worth the
+  // extra API call. Gives real mechanism-level detail to write from instead
+  // of a 150-char description, without fetching READMEs for repos that
+  // never even made it into the post.
+  let sourceMaterial = '';
+  if (bestTopic.source === 'github' && bestTopic.source_url) {
+    const match = bestTopic.source_url.match(/github\.com\/([^\/]+\/[^\/]+)/);
+    if (match) {
+      const repoFullName = match[1].replace(/\.git$/, '');
+      console.log(`  📄 Fetching README for ${repoFullName}...`);
+      sourceMaterial = await getGitHubReadme(repoFullName);
+      if (sourceMaterial) {
+        console.log(`  ✓ Got ${sourceMaterial.length} chars of real source material`);
+      }
+    }
+  }
+
   // Pick a hook that fits
   const availableHooks = hooksData.hooks;
   const randomHooks = availableHooks.sort(() => 0.5 - Math.random()).slice(0, 10);
@@ -56,21 +76,27 @@ TODAY'S TOPIC: "${bestTopic.topic}"
 WHY TRENDING: ${bestTopic.why_trending || 'Hot in tech community right now'}
 HOOK/ANGLE: ${bestTopic.angle || 'Interesting technical angle'}
 CONTENT TYPE: ${bestTopic.content_type || 'story'}
+${sourceMaterial ? `\nREAL SOURCE MATERIAL (the project's own README — use this for actual mechanism-level specifics, don't just restate the angle above):\n${sourceMaterial}\n` : ''}
 
 AVAILABLE HOOKS (pick the best one):
 ${randomHooks.slice(0, 8).join('\n')}
 
 ${isHumor
   ? `This is a HUMOR topic — corporate/workplace comedy (HR-speak, CEO buzzwords, layoffs, meeting culture, management absurdity). Build the angle and key_points as comedic beats leading to a punchline, not technical teaching points. If HOOK/ANGLE references a real company, CEO, or event, base everything on what's actually in HOOK/ANGLE — never invent a quote or claim. Punch at the situation, not at any individual personally.`
-  : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience. But it still needs a real point of view: pick an honest reaction to TOPIC (impressed, skeptical, "this solves a real problem," "this is overhyped") and build key_points around that stance, not a neutral list of facts. If TOPIC is niche/insider, key_points should translate it into why a developer outside that niche would actually care — the underlying tradeoff or debate, not just the jargon.`}
+  : `Default to writing as a knowledgeable developer commenting on the topic itself — NOT as a personal story about apps built, users gained, or years of experience. But it still needs a real point of view: pick an honest reaction to TOPIC (impressed, skeptical, "this solves a real problem," "this is overhyped") and build key_points around that stance, not a neutral list of facts. If TOPIC is niche/insider, key_points should translate it into why a developer outside that niche would actually care — the underlying tradeoff or debate, not just the jargon.${sourceMaterial ? ' REAL SOURCE MATERIAL is available above — pull key_points from what it ACTUALLY says the project does, mechanism by mechanism, instead of writing generically. Each key_point should be one real capability described in the README, in your own words.' : ''}`}
 Only fill in "personal_connection" if there's a genuinely specific, non-generic tie-in to hands-on experience that makes the post stronger; if not, leave it as an empty string. Most ideas should have it empty.
 
-GROUNDING (important): TODAY'S TOPIC / WHY TRENDING / HOOK-ANGLE above is everything that's actually been verified from real scraped content. When you write key_points, thread_points, and key_message, you're allowed to explain and add context around that real material, but do NOT invent additional specific-sounding details that weren't given to you — no new named sub-tools, sub-projects, specific stats, or specific claims beyond what's in TOPIC/WHY TRENDING/HOOK-ANGLE. This includes inventing a second name to pair with a real one — if TOPIC only gives you one specific named tool, don't write it as "X and Y" with an invented Y just to sound like you're citing two established things. If you need an example to illustrate a point, describe it generically ("a lightweight variant," "a compaction technique") instead of inventing a plausible-sounding proper name for it. If TOPIC is a specific named framework/tool that a general audience likely won't recognize, note that in the angle so the writer knows to define it in plain words rather than assuming familiarity.
+GROUNDING (important): TODAY'S TOPIC / WHY TRENDING / HOOK-ANGLE${sourceMaterial ? ' / REAL SOURCE MATERIAL' : ''} above is everything that's actually been verified from real scraped content. When you write key_points, thread_points, and key_message, you're allowed to explain and add context around that real material, but do NOT invent additional specific-sounding details that weren't given to you — no new named sub-tools, sub-projects, specific stats, or specific claims beyond what's in TOPIC/WHY TRENDING/HOOK-ANGLE${sourceMaterial ? '/REAL SOURCE MATERIAL' : ''}. This includes inventing a second name to pair with a real one — if TOPIC only gives you one specific named tool, don't write it as "X and Y" with an invented Y just to sound like you're citing two established things. If you need an example to illustrate a point, describe it generically ("a lightweight variant," "a compaction technique") instead of inventing a plausible-sounding proper name for it. If TOPIC is a specific named framework/tool that a general audience likely won't recognize, note that in the angle so the writer knows to define it in plain words rather than assuming familiarity.
+
+NUMBERS: never invent a specific statistic, ratio, percentage, or count (like "40:1" or "3x faster") to make a point sound more credible. A precise-sounding number is the single most convincing-looking thing you can fabricate, and it's exactly what gets caught. Only use a number if it's verbatim in TOPIC/WHY TRENDING/HOOK-ANGLE${sourceMaterial ? '/REAL SOURCE MATERIAL' : ''} above. Otherwise describe the trend qualitatively ("shifting toward," "a growing share of") instead of making up a figure.
+
+DON'T MERGE UNRELATED TOPICS: if TODAY'S TOPIC touches more than one real story or trend, only claim a connection between them if that connection is actually in WHY TRENDING/HOOK-ANGLE. Don't present one real, unrelated news item as if it's proof or a cause of a separate real trend just because they're both in the same general space (e.g., a specific product launch is not automatically "evidence of" a broader industry shift unless the source material actually says so).
 
 Return JSON:
 {
   "topic": "${bestTopic.topic}",
   "content_type": "${bestTopic.content_type || 'story'}",
+  "has_deep_source": ${sourceMaterial ? 'true' : 'false'},
   "chosen_hook": "exact hook text chosen from the list above",
   "hook_reason": "why this hook fits",
   "linkedin": {
@@ -102,6 +128,7 @@ Return JSON:
     ideas = {
       topic: bestTopic.topic,
       content_type: bestTopic.content_type || 'story',
+      has_deep_source: false,
       chosen_hook: availableHooks[0],
       hook_reason: 'Fallback',
       linkedin: {
@@ -138,6 +165,7 @@ Return JSON:
     '', // twitter_id
     '', // instagram_saved
     ideas.content_type || 'story',
+    ideas.has_deep_source ? 'true' : 'false',
   ]);
 
   await notifyDiscord(

@@ -63,7 +63,11 @@ async function runResearcher(runLabel = 'morning') {
 
   const contentSummary = allContent
     .slice(0, 50)
-    .map((c) => `[${c.type?.toUpperCase()}] ${c.title || c.name || ''}: ${c.selftext || c.summary || c.description || ''}`.substring(0, 200))
+    .map((c) => {
+      const text = `[${c.type?.toUpperCase()}] ${c.title || c.name || ''}: ${c.selftext || c.summary || c.description || ''}`.substring(0, 200);
+      const link = c.url || c.link || '';
+      return link ? `${text} (source: ${link})` : text;
+    })
     .join('\n');
 
   const scoringPrompt = `
@@ -78,7 +82,7 @@ From this content — not from any fixed topic list — identify the TOP 5 topic
 3. Have a genuine hook — something specific, surprising, or debatable that would make a developer stop scrolling. Not a generic "here's what I learned" angle.
 4. Can be made to matter to a developer who ISN'T already following that specific niche. Some of today's hottest content will be deep inside one small community (a brand-new framework, an obscure GitHub project) — that's fine as raw material, but the angle you write must translate it into the broader, relatable question or tension it represents (why should anyone outside this niche care, what debate or tradeoff does this actually represent), not just report the insider jargon as if it's common knowledge. If a topic can't be translated that way even with effort, don't pick it — pick the next one that can.
 
-Base every topic on something actually present in the content above. Do NOT propose an angle that centers on the author's personal apps, story, or background — the post should be interesting because of the topic itself, not because of who's writing it.
+Base every topic on something actually present in the content above. Do NOT propose an angle that centers on the author's personal apps, story, or background — the post should be interesting because of the topic itself, not because of who's writing it. Never invent a specific number, ratio, or percentage for why_trending or angle unless it's actually in the content above — describe the trend qualitatively instead of making up a figure. If two different real items in the content above are both loosely related to the same general space, don't claim one is evidence of or caused by the other unless the content actually says so.
 
 Among the 5, include AT LEAST ONE genuinely funny/relatable topic (content_type: "humor") about workplace life, HR, management, CEOs, or company culture. Two ways to do that:
 - If the content above has a real, specific story (a real company, a real CEO, a real layoff or policy), base the angle on what's actually reported — don't invent quotes or claims, and punch at the absurdity of the situation, not at any individual personally.
@@ -92,6 +96,7 @@ Return JSON array with exactly 5 objects:
     "angle": "the specific hook or angle, framed around why a developer OUTSIDE this specific niche would care — the relatable tension or tradeoff, not just the insider jargon",
     "why_trending": "brief reason it's trending today",
     "source": "reddit|rss|github|news",
+    "source_url": "the exact (source: ...) URL from the content above that this topic is based on — copy it exactly, or empty string if none applies",
     "score": 1-100,
     "content_type": "tutorial|story|opinion|breakdown|thread|tip|humor"
   }
@@ -129,6 +134,7 @@ Return JSON array with exactly 5 objects:
       topic.why_trending,
       topic.content_type,
       'pending', // status: pending | used
+      topic.source_url || '',
     ]);
   }
 
